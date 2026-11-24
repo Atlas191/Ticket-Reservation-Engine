@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
+from app.core.security import hash_password
 
 from app.db.session import SessionLocal
 from app.models.tables import User, Event, Seat
@@ -10,7 +11,7 @@ def seed():
   try:
       admin = User(
           email="admin@example.com",
-          password_hash="placeholder",
+          password_hash=hash_password("admin12345"),
           role="admin",
       )
       db.add(admin)

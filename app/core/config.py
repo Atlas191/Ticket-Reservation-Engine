@@ -8,6 +8,8 @@ class Settings(BaseSettings):
   webhook_secret : str
   jwt_secret : str
   hold_minutes : int
+  
+  jwt_expire_minutes: int = 60
 
 settings = Settings()
 

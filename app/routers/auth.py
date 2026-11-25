@@ -11,7 +11,7 @@ from app.services.auth_services import register_user,authenticate
 router = APIRouter(prefix='/auth',tags=['auth'])
 
 @router.post('/register',response_model=UserOut,status_code=201)
-def register(body : RegisterIn,db : Session = Depends(get_db)):
+def register(body : RegisterIn, db : Session = Depends(get_db)):
   return register_user(body.email,body.password,db)
 
 @router.post('/login',response_model=TokenOut)

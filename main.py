@@ -3,11 +3,14 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core.redis_client import redis_client
-from app.routers import auth
+from app.routers import auth,event
 from app.models.tables import User
 from app.deps import get_current_user,require_admin
+
 App = FastAPI(title="Yayyyy")
+
 App.include_router(auth.router)
+App.include_router(event.router)
 
 
 

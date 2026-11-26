@@ -49,4 +49,15 @@ class SeatOut(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
+class HoldIn(BaseModel):
+    seat_ids : list[int] = Field(min_length=1, max_length=6)
+
+class BookingOut(BaseModel):
+    id: int
+    event_id : int
+    status : str
+    total_amount : Decimal
+    expires_at : datetime
+
+    model_config = ConfigDict(from_attributes= True)
 

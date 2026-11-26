@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.deps import get_current_user, require_admin
 from app.models.tables import User
-from app.schemas.data_models import EventCreate, EventOut, EventPage, SeatOut
+from app.schemas.data_models import EventCreate, EventOut, EventPage, SeatOut,BookingOut,HoldIn
 from app.services.event_services import create_event,list_events,get_seat_map
+from app.services.booking_services import hold_seats
 
 router = APIRouter(prefix='/events',tags=['events'])
 
@@ -22,3 +23,8 @@ def list_all(skip: int =Query(0,ge=0),limit : int = Query(1,ge=1,le=100),db: Ses
 @router.get("/{event_id}/seats",response_model=list[SeatOut])
 def seat_map(event_id : int, db: Session = Depends(get_db), user : User = Depends(get_current_user)):
   return get_seat_map(event_id,db)
+
+
+@router.post("/{event_id}/holds",response_model=BookingOut,status_code=201,description='Books the Seats for event')
+def hold(event_id : int, body: HoldIn,db: Session = Depends(get_db),user : User = Depends(get_current_user)):
+  return hold_seats(event_id,body.seat_ids,user.id,db)

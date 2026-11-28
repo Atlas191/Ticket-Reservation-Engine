@@ -1,7 +1,8 @@
 from typing import Literal
-from pydantic import BaseModel, EmailStr, Field,ConfigDict
+from pydantic import BaseModel, EmailStr, Field,ConfigDict,field_serializer
 from datetime import datetime
 from decimal import Decimal
+from zoneinfo import ZoneInfo
 
 class RegisterIn(BaseModel):
     email: EmailStr
@@ -60,4 +61,10 @@ class BookingOut(BaseModel):
     expires_at : datetime
 
     model_config = ConfigDict(from_attributes= True)
+
+    @field_serializer("expires_at")
+    def format_expires_at(self, value: datetime):
+        return value.astimezone(ZoneInfo("Asia/Kolkata")).strftime(
+            "%d %b %Y, %I:%M %p"
+        )
 

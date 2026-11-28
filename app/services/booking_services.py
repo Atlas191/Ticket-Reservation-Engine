@@ -50,4 +50,30 @@ def hold_seats(event_id : int, seat_ids : list[int], user_id : int, db : Session
   db.commit()
   db.refresh(new_booking)
   return new_booking
-      
+
+
+def cancel_booking(booking_id : int, user_id : int , db : Session) ->Booking:
+  stmt= (select(Booking).where(Booking.id == booking_id).with_for_update())
+
+  booking = db.scalar(stmt)
+  if booking is None or booking.user_id != user_id:
+    db.rollback()
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='Invalid booking id .....')
+
+  if booking.status != 'HELD':
+    db.rollback()
+    raise HTTPException(status_code=status.HTTP_409_CONFLICT,detail='This seat is not held...')
+
+  stmt2 = (select(Seat).where(Seat.booking_id == booking_id).order_by(Seat.id).with_for_update())
+
+  seats = db.scalars(stmt2).all()
+
+  for seat in seats:
+    seat.booking_id =None
+    seat.status = "AVAILABLE"
+    seat.hold_expires_at = None
+
+  booking.status = "CANCELLED"
+  db.commit()
+  db.refresh(booking)
+  return booking

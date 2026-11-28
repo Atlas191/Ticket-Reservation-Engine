@@ -4,7 +4,8 @@ from sqlalchemy import select,func
 from app.schemas.data_models import EventCreate
 from sqlalchemy.orm import Session
 from app.models.tables import Event,Seat
-
+from datetime import datetime,timezone
+from app.schemas.data_models import SeatOut
 
 
 def create_event(body : EventCreate,admin_id : int,db : Session) -> Event:
@@ -43,7 +44,12 @@ def get_seat_map(event_id : int, db : Session) -> list[Seat]:
   if event is None:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail='event not found.....')
 
-  return db.scalars(select(Seat).where(Seat.event_id == event_id).order_by(Seat.id)).all()
+  now = datetime.now(timezone.utc)
+  seats = db.scalars(select(Seat).where(Seat.event_id == event_id).order_by(Seat.id)).all()
+
+  return [SeatOut(id=seat.id, label=seat.label,price=seat.price,status="AVAILABLE" if seat.status == "HELD" and seat.hold_expires_at and seat.hold_expires_at < now else seat.status)
+          for seat in seats]
+  
 
 
 

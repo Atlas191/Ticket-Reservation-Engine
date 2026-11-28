@@ -7,7 +7,7 @@ class Settings(BaseSettings):
   redis_url : str
   webhook_secret : str
   jwt_secret : str
-  hold_minutes : int
+  hold_minutes : int = 10
   
   jwt_expire_minutes: int = 60
 

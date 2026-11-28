@@ -3,16 +3,26 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 from app.db.session import get_db
 from app.core.redis_client import redis_client
-from app.routers import auth,event
+from app.routers import auth,event,bookings
 from app.models.tables import User
 from app.deps import get_current_user,require_admin
+from app.expiry_cleaner import run_cleaner
+from contextlib import asynccontextmanager
+import asyncio
 
-App = FastAPI(title="Yayyyy")
+
+@asynccontextmanager
+async def lifespan(app):
+  task = asyncio.create_task(run_cleaner())
+  yield
+  task.cancel()
+
+App = FastAPI(title="Yayyyy",lifespan=lifespan)
+
 
 App.include_router(auth.router)
 App.include_router(event.router)
-
-
+App.include_router(bookings.router)
 
 @App.get('/health')
 def health(response : Response, db : Session = Depends(get_db)):
